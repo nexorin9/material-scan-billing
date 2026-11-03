@@ -1,0 +1,4 @@
+operation_no,room_no,dept_code,status,closed_at
+OP-SAMPLE-001,OR-01,SURG-01,open,
+OP-SAMPLE-002,OR-02,SURG-01,open,
+OP-SAMPLE-003,OR-03,SURG-02,closed,2026-01-15T09:30:00+08:00

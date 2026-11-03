@@ -1,0 +1,66 @@
+# 高值耗材扫码计费闭环系统 · 容器编排
+#
+# 起：
+#   cd deploy
+#   MATERIAL_SCAN_BILLING_ENV_FILE=/etc/chaosforge/material-scan-billing.env \
+#     docker compose up -d
+#   docker compose ps          # 看健康状态
+#   docker compose logs -f     # 看结构化日志
+#   docker compose down        # 停（会先发 SIGTERM，守护进程把在途批次结算完再退）
+#
+# 凭据一律从院内环境变量文件读（env_file），**不进 compose 文件、不进镜像**。
+# 缺哪一个变量，守护进程启动自检会指名报错并拒绝启动。
+
+services:
+  material-scan-billing:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: material-scan-billing:latest
+    container_name: material-scan-billing
+    restart: unless-stopped
+
+    # 院内环境变量文件（凭据位：入站 / 出站 / 推送三路）
+    env_file:
+      - ${MATERIAL_SCAN_BILLING_ENV_FILE:-/etc/chaosforge/material-scan-billing.env}
+
+    environment:
+      NODE_ENV: production
+      LEDGER_DB_PATH: /var/lib/material-scan-billing/ledger.db
+      SCAN_INBOX_DIR: /var/spool/material-scan-billing/scan-inbox
+      HTTP_PORT: "8099"
+      DAEMON_POLL_INTERVAL_MS: "1000"
+      DAEMON_HEARTBEAT_INTERVAL_MS: "30000"
+      DAEMON_SHUTDOWN_TIMEOUT_MS: "15000"
+      # 主数据热更新检查间隔（文件一变就重导，导入即生效不重启）
+      MASTER_DATA_RELOAD_INTERVAL_MS: "30000"
+      # 主数据热更新观察对象（配上这两行即启用自动热更新）
+      # MASTER_DATA_OPERATIONS_CSV: /var/spool/material-scan-billing/master-data/operations.csv
+      # MASTER_DATA_MATERIALS_CSV: /var/spool/material-scan-billing/master-data/materials.csv
+
+    ports:
+      # 扫码枪 / 网关投递扫码事件
+      - "8099:8099"
+
+    volumes:
+      # 状态卷：台账 SQLite 落在这里（容器重建不丢状态）
+      - ./data:/var/lib/material-scan-billing
+      # RFID 网关目录投递箱
+      - ./scan-inbox:/var/spool/material-scan-billing/scan-inbox
+
+    # 健康检查走心跳探针：进程自己写心跳，心跳不新鲜就判不健康
+    healthcheck:
+      test: ["CMD", "node", "dist/scripts/healthcheck.js", "--max-age", "90000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+    # 停机宽限期：留够守护进程把在途批次结算完的时间
+    stop_grace_period: 30s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

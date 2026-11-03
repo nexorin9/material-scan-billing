@@ -1,0 +1,7 @@
+material_code,name,price_code,fee_category,medical_insurance_class,active,batch_no,unit_pack,unit_min,charge_unit,ratio
+MAT-SAMPLE-01,药物洗脱支架,PR-SAMPLE-01,卫生材料,甲类,true,LOT-SAMPLE-A,包,支,支,1
+MAT-SAMPLE-02,可吸收止血膜,PR-SAMPLE-02,卫生材料,乙类,true,LOT-SAMPLE-B,包,片,片,1
+MAT-SAMPLE-03,人工髋关节系统,PR-SAMPLE-03,卫生材料,甲类,true,LOT-SAMPLE-C,套,套,套,1
+MAT-SAMPLE-04,心脏起搏电极,PR-SAMPLE-04,卫生材料,丙类,true,LOT-SAMPLE-D,包,支,支,5
+MAT-SAMPLE-05,骨科锁定接骨板,PR-SAMPLE-05,卫生材料,乙类,true,LOT-SAMPLE-E,包,块,块,1
+MAT-SAMPLE-06,颅内动脉瘤夹,PR-SAMPLE-06,卫生材料,甲类,false,LOT-SAMPLE-F,包,枚,枚,3

@@ -1,0 +1,38 @@
+{
+  "name": "material-scan-billing",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "高值耗材扫码计费闭环系统：术中扫码事件入站 → 台次绑定判定 → HIS 计费回写 → 核查任务闭环",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "main": "dist/daemon.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/daemon.js",
+    "dev": "tsc -p tsconfig.json && node dist/daemon.js",
+    "cli": "node dist/cli.js",
+    "healthcheck": "npm run build && node dist/scripts/healthcheck.js",
+    "test": "npm run build && node --test \"dist/tests/*.test.js\"",
+    "demo:pipe": "npm run build && node dist/scripts/demo-pipe.js",
+    "fixtures:boundary": "npm run build && node dist/scripts/gen-boundary-fixtures.js",
+    "docs:judgement": "npm run build && node dist/scripts/gen-judgement-matrix.js",
+    "docs:matrix": "npm run build && node dist/scripts/gen-state-matrix.js",
+    "docs:api": "npm run build && node dist/scripts/gen-api-docs.js",
+    "data:fetch": "npm run build && node dist/scripts/fetch-public-data.js",
+    "data:synth": "npm run build && node dist/scripts/synthesize-hospital-data.js",
+    "data:manifest": "npm run build && node dist/scripts/data-manifest.js",
+    "data:prepare": "npm run data:fetch && npm run data:synth && npm run data:manifest",
+    "bench:idempotency": "npm run build && node dist/scripts/load-1000.js && node dist/scripts/baseline-naive-resend.js",
+    "bench:concurrency": "npm run build && node dist/scripts/bench-concurrency.js",
+    "monthly:run": "npm run build && node dist/scripts/run-monthly.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  },
+  "license": "MIT"
+}

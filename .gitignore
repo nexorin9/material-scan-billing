@@ -1,0 +1,35 @@
+# 依赖与构建产物
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# 运行时状态（台账库、心跳、目录投递箱）
+data/
+logs/
+scan-inbox/
+processed/
+
+# 环境与凭据
+.env
+.env.*
+!.env.example
+
+# 缓存与临时文件
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+tmp/
+temp/
+*.log
+*.tmp
+*.temp
+*.pyc
+*.pyo
+
+# round 级元数据（不应进入发布仓库）
+score.json
+progress.txt

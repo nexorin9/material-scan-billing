@@ -1,0 +1,70 @@
+# 高值耗材扫码计费闭环系统 · systemd 常驻单元
+#
+# 装法：
+#   sudo cp deploy/material-scan-billing.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now material-scan-billing
+#   systemctl status material-scan-billing      # 看状态
+#   journalctl -u material-scan-billing -f      # 看日志（结构化 JSON 行）
+#
+# 凭据不进 unit 文件：统一放在 EnvironmentFile 指的院内环境变量文件里（权限 600），
+# 缺哪一个变量守护进程都会在启动自检里指名报错并拒绝启动。
+
+[Unit]
+Description=高值耗材扫码计费闭环系统（术中扫码 → 台次绑定 → HIS 计费回写）
+Documentation=file:///opt/chaosforge/material-scan-billing/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=material-scan-billing
+Group=material-scan-billing
+WorkingDirectory=/opt/chaosforge/material-scan-billing
+
+# 院内环境变量文件（凭据位齐否由启动自检逐项检查，缺哪个指名变量名）
+# 前面的 "-" 表示文件不存在也不拦启动 —— 但真缺凭据时守护进程自己会拒绝启动
+EnvironmentFile=-/etc/chaosforge/material-scan-billing.env
+Environment=NODE_ENV=production
+
+# 运行参数（不是凭据，可以放在 unit 里）
+Environment=LEDGER_DB_PATH=/var/lib/chaosforge/material-scan-billing/ledger.db
+Environment=SCAN_INBOX_DIR=/var/spool/chaosforge/material-scan-billing/scan-inbox
+Environment=HTTP_PORT=8099
+Environment=DAEMON_POLL_INTERVAL_MS=1000
+Environment=DAEMON_HEARTBEAT_INTERVAL_MS=30000
+Environment=DAEMON_SHUTDOWN_TIMEOUT_MS=15000
+
+# 主数据热更新（导入即生效 · 不重启）：配了下面两行就盯着文件，
+# 文件一变自动重导一次（耗材新建档 / 停用、临时加台、提前关台都不用重启进程）。
+#Environment=MASTER_DATA_OPERATIONS_CSV=/var/spool/chaosforge/material-scan-billing/master-data/operations.csv
+#Environment=MASTER_DATA_MATERIALS_CSV=/var/spool/chaosforge/material-scan-billing/master-data/materials.csv
+Environment=MASTER_DATA_RELOAD_INTERVAL_MS=30000
+
+ExecStart=/usr/bin/node dist/daemon.js
+
+# 停机：systemd 发 SIGTERM，守护进程把在途批次结算完再退（TimeoutStopSec 要留够）
+KillSignal=SIGTERM
+KillMode=mixed
+TimeoutStopSec=30s
+
+# 常驻：崩了自己拉起来
+Restart=always
+RestartSec=5s
+
+# 日志走 journald（journalctl -u material-scan-billing -f）
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=material-scan-billing
+
+# 最小权限：只允许写状态目录
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+ReadWritePaths=/var/lib/chaosforge/material-scan-billing /var/spool/chaosforge/material-scan-billing
+
+[Install]
+WantedBy=multi-user.target

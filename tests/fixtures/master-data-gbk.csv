@@ -1,0 +1,4 @@
+material_code,name,price_code,fee_category,medical_insurance_class,active,batch_no,unit_pack,unit_min,charge_unit,ratio
+MAT-GBK-01,可吸收缝合线,PR-GBK-01,卫生材料,甲类,true,LOT-GBK-A,包,支,支,5
+MAT-GBK-02,髋关节假体（钛合金）,PR-GBK-02,卫生材料,乙类,true,LOT-GBK-B,包,支,支,1
+MAT-GBK-03,聚维酮碘微球,PR-GBK-03,卫生材料,丙类,true,LOT-GBK-C,包,支,支,2

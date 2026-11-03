@@ -1,0 +1,5 @@
+material_code,operation_no,attempt,expected_kind,expected_reason_code,expected_error_code,expected_channel_reachable,expected_accepted,expected_delivery_count
+MAT-SAMPLE-01,OP-SAMPLE-001,1,BUSINESS_REJECTED,PEER_RATE_LIMITED,ERR_CHARGE_RATE_LIMITED,1,false,1
+MAT-SAMPLE-01,OP-SAMPLE-001,2,CHANNEL_UNREACHABLE,ERR_CHARGE_TIMEOUT,ERR_CHARGE_TIMEOUT,0,false,2
+MAT-SAMPLE-01,OP-SAMPLE-001,3,BUSINESS_REJECTED,PEER_SERVICE_BUSY,ERR_CHARGE_SERVICE_BUSY,1,false,3
+MAT-SAMPLE-01,OP-SAMPLE-001,4,ACCEPTED,,,1,true,4
